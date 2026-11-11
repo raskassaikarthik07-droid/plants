@@ -219,5 +219,37 @@
     document.getElementById('productsSection');
     document.querySelector('#products').id = 'productsSection';
   </script>
+  
+<section id="daily-plant-tip">
+  <h2>🌱 Plant Tip of the Day</h2>
+  <p id="tip-date">Loading date...</p>
+  <h3 id="tip-title">Loading tip...</h3>
+  <p id="tip-content">Please wait...</p>
+</section>
+
+<script>
+  fetch('./daily-update.json')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Could not load plant tip');
+      }
+      return response.json();
+    })
+    .then(data => {
+      document.getElementById('tip-date').textContent =
+        'Updated: ' + data.date;
+
+      document.getElementById('tip-title').textContent =
+        data.title;
+
+      document.getElementById('tip-content').textContent =
+        data.tip;
+    })
+    .catch(error => {
+      document.getElementById('tip-content').textContent =
+        'Plant tips will appear after the first automated update.';
+    });
+</script>
+
 </body>
 </html>
