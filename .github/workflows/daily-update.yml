@@ -1,5 +1,5 @@
 
-name: Daily Repository Check
+name: Daily Plant Website Update
 
 on:
   schedule:
@@ -7,19 +7,93 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  daily-check:
+  daily-update:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check website files
+      - name: Configure Git
         run: |
-          test -f index.html
-          test -f style.css
-          test -f script.js
-          echo "Website files checked successfully!"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate daily log and plant tip
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+          tips = [
+              {
+                  "title": "Water wisely",
+                  "tip": "Check the top layer of soil before watering. Water only when your plant needs it."
+              },
+              {
+                  "title": "Give plants sunlight",
+                  "tip": "Understand your plant's sunlight requirements and place it in a suitable location."
+              },
+              {
+                  "title": "Healthy soil",
+                  "tip": "Use well-draining soil to help prevent waterlogging and root problems."
+              },
+              {
+                  "title": "Clean the leaves",
+                  "tip": "Gently wipe dusty leaves with a damp cloth to keep them clean."
+              },
+              {
+                  "title": "Check for pests",
+                  "tip": "Inspect the leaves and stems regularly for signs of pests."
+              },
+              {
+                  "title": "Prune when needed",
+                  "tip": "Remove dead or damaged leaves using clean pruning tools."
+              },
+              {
+                  "title": "Avoid overwatering",
+                  "tip": "Make sure excess water can drain from your plant's pot."
+              }
+          ]
+
+          tip = tips[datetime.now(timezone.utc).timetuple().tm_yday % len(tips)]
+
+          Path("daily-logs").mkdir(exist_ok=True)
+
+          log = f"""# Daily Plant Website Update - {today}
+
+          - Automated GitHub Actions workflow executed.
+          - Generated today's plant-care tip.
+          - Updated the website's daily tip data.
+          - No manual project development is claimed by this automated log.
+          """
+
+          Path(f"daily-logs/{today}.md").write_text(log)
+
+          Path("daily-update.json").write_text(
+              json.dumps({
+                  "date": today,
+                  "title": tip["title"],
+                  "tip": tip["tip"]
+              }, indent=2)
+          )
+
+          print(f"Generated daily update for {today}")
+          PY
+
+      - name: Commit and push updates
+        run: |
+          git add daily-logs/ daily-update.json
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Daily plant website update"
+            git push
+          else
+            echo "No new changes to commit."
+          fi
