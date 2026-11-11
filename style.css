@@ -733,3 +733,28 @@ footer {
   .hero-text h1 { font-size: 2rem; }
   .products-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
 }
+
+#daily-plant-tip {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #eaf7e9;
+  border-radius: 16px;
+  border: 1px solid #b8dfb5;
+  text-align: center;
+  color: #245b32;
+}
+
+#daily-plant-tip h2 {
+  font-size: 26px;
+  margin-bottom: 15px;
+}
+
+#daily-plant-tip h3 {
+  font-size: 20px;
+  margin: 12px 0;
+}
+
+#daily-plant-tip p {
+  line-height: 1.7;
+}
